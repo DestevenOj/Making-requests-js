@@ -29,3 +29,27 @@ function makeRequest(verb, url, data) {
   });
 }
 
+async function createPost() {
+  const uidPromise = makeRequest('GET', api + '/generate-uid');
+  const titlePromise = makeRequest('GET', api + '/generate-title');
+  const loremPromise = makeRequest('GET', api + '/generate-lorem');
+  
+  const [uidResponse, titleResponse, loremResponse] = await Promise.all([uidPromise, titlePromise, loremPromise]);
+  
+  const postPromise = makeRequest('POST', api + '/create-post-with-uid', {
+    uid: uidResponse.uid,
+    title: titleResponse.title,
+    content: loremResponse.lorem
+  });
+  
+  const postResponse = await postPromise;
+  
+  postTitle.textContent = postResponse.post.title;
+  postId.textContent = postResponse.post.id;
+  postContent.textContent = postResponse.post.content;
+}
+
+generateButton.addEventListener('click', () => {
+  createPost();
+});
+
